@@ -61,6 +61,10 @@ def main():
         # Adds played cards to the active pile
         for card in range(int(card_amount)):
             cards_played.append(current_card)
+            if card in player_hands[current_player]["Unconfirmed"]:
+                player_hands[current_player]["Unconfirmed"].remove(card)
+            elif card in player_hands[current_player]["Confirmed"]:
+                player_hands[current_player]["Confirmed"].remove(card)
 
         bs_called = str(input("Was BS called? (y/n): ")).lower()
         if bs_called == "y":
