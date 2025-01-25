@@ -22,6 +22,9 @@ player_hands = {
 }
 round_num = 1
 
+pile = []
+confirmed_pile = []
+
 def card_log(card_sequence):
     # Converts string card_sequence into a list of valid cards
     cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "Invalid"]
@@ -34,7 +37,7 @@ def card_log(card_sequence):
     card_return.sort(key=lambda x: cards.index(x))
     return card_return
 
-def print_hands():
+def hands_text():
     return f"""
     ====== Player 1 ======
     Confirmed  : {player_hands[1]["Confirmed"]}
@@ -56,10 +59,11 @@ def print_hands():
 def cycle_player(player, bs):
     # Cycles through the players and rounds
     global round_num
-    round_num += 1
-    if bs != 0:
+    if bs != 0: # BS was correct
         return bs
-    elif player == 4:
+
+    round_num += 1
+    if player == 4:
         return 1
     else:
         return player + 1
@@ -69,6 +73,14 @@ def round_count():
     cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
     return cards[(round_num - 1) % 13]
 
+def pile_take(player, cards_played):
+    # Handles pile taking logic
+    player_hands[player]["Confirmed"].extend(confirmed_pile)
+    player_hands[player]["Confirmed"].extend(cards_played)
+    player_hands[player]["Unconfirmed"].extend(pile)
+    pile.clear()
+    confirmed_pile.clear()
+
 def main():
     game_running = True
 
@@ -77,11 +89,9 @@ def main():
     
     while game_running:
         bs_caller = 0
-        pile = []
-        confirmed_pile = []
         current_card = round_count()
         cards_played = []
-        print(f"Round {round_num} - Card: {current_card} - Player: {current_player}")
+        print(f"Card: {current_card} - Player: {current_player}")
         # Asks for the number of cards played by the current player
         if current_player != 1:
             card_amount = str(input(f"Enter '{current_card}'s played: "))
@@ -110,14 +120,10 @@ def main():
                 bs_caller = caller
                 # Appends active pile to confirmed, inactive pile to unconfirmed
                 cards_played = card_log(str(input("Enter cards revealed: ")))
-                player_hands[current_player]["Confirmed"].extend(cards_played)
-                player_hands[current_player]["Confirmed"].extend(confirmed_pile)
-                player_hands[current_player]["Unconfirmed"].extend(pile)
+                pile_take(current_player, cards_played)
             else:
                 # Appends the active pile to the caller's hands
-                player_hands[caller]["Confirmed"].extend(cards_played)
-                player_hands[caller]["Confirmed"].extend(confirmed_pile)
-                player_hands[caller]["Unconfirmed"].extend(pile)
+                pile_take(caller, cards_played)
 
         else:
             # BS not called, adds played cards (active pile) to the pile
@@ -126,7 +132,7 @@ def main():
             else: # You played these cards
                 confirmed_pile.extend(cards_played)
         current_player = cycle_player(current_player, bs_caller) # Cycles to the next player
-        print(print_hands())
+        print(hands_text())
 
 
 main()
