@@ -95,7 +95,7 @@ def main():
                     player_hands[current_player]["Confirmed"].remove(current_card)
 
         else: # If its your turn
-            player_cards = card_log(str(input("Enter cards revealed: ")))
+            player_cards = card_log(str(input("Enter cards placed: ")))
             for card in player_cards:
                 cards_played.append(card)
             player_hands[1]["Confirmed"].clear()
